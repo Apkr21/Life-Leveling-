@@ -1,0 +1,67 @@
+{
+  "app": {
+    "name": "Recovery Path",
+    "version": "1.0.0",
+    "description": "Your Journey to Freedom from Porn Addiction"
+  },
+  "features": {
+    "enableNotifications": false,
+    "enableDataExport": true,
+    "enableGoalReminders": true,
+    "maxJournalEntries": 100,
+    "chartAnimations": true
+  },
+  "milestones": [
+    { "days": 1, "icon": "🎯", "title": "Day 1", "subtitle": "First Step" },
+    { "days": 3, "icon": "🌱", "title": "Day 3", "subtitle": "Growing" },
+    { "days": 7, "icon": "🔥", "title": "Week 1", "subtitle": "On Fire" },
+    { "days": 14, "icon": "💪", "title": "2 Weeks", "subtitle": "Strong" },
+    { "days": 30, "icon": "🏆", "title": "Month 1", "subtitle": "Champion" },
+    { "days": 90, "icon": "🌟", "title": "3 Months", "subtitle": "Star" },
+    { "days": 180, "icon": "💎", "title": "6 Months", "subtitle": "Diamond" },
+    { "days": 365, "icon": "👑", "title": "1 Year", "subtitle": "Royalty" }
+  ],
+  "motivationalQuotes": [
+    "The greatest victory is that which requires no battle. - Sun Tzu",
+    "It does not matter how slowly you go as long as you do not stop. - Confucius",
+    "Success is not final, failure is not fatal: it is the courage to continue that counts. - Winston Churchill",
+    "The only impossible journey is the one you never begin. - Tony Robbins",
+    "Your present circumstances don't determine where you can go; they merely determine where you start. - Nido Qubein",
+    "The first step toward change is awareness. The second step is acceptance. - Nathaniel Branden",
+    "Progress is impossible without change, and those who cannot change their minds cannot change anything. - George Bernard Shaw",
+    "The cave you fear to enter holds the treasure you seek. - Joseph Campbell",
+    "Strength doesn't come from what you can do. It comes from overcoming the things you once thought you couldn't. - Rikki Rogers",
+    "Every moment is a fresh beginning. - T.S. Eliot",
+    "You are not your mistakes. You are not your mishaps. You are not your past. - Steve Maraboli",
+    "The strongest people are not those who show strength in front of us, but those who win battles we know nothing about. - Unknown"
+  ],
+  "emergencyActivities": [
+    { "id": "pushups", "icon": "fas fa-dumbbell", "text": "Do 10 push-ups", "message": "Great choice! Physical exercise releases endorphins and redirects your energy positively." },
+    { "id": "walk", "icon": "fas fa-walking", "text": "Take a 5-minute walk", "message": "Excellent! Fresh air and movement are powerful mood boosters and urge breakers." },
+    { "id": "cold-shower", "icon": "fas fa-shower", "text": "Take a cold shower", "message": "Perfect! Cold water is an immediate reset button for your nervous system." },
+    { "id": "call-friend", "icon": "fas fa-phone", "text": "Call a friend or family", "message": "Wonderful! Social connection is one of the strongest tools against addiction." },
+    { "id": "meditation", "icon": "fas fa-om", "text": "5-minute meditation", "message": "Fantastic! Mindfulness helps you observe urges without acting on them." },
+    { "id": "journal", "icon": "fas fa-pen", "text": "Write in journal", "message": "Great idea! Writing helps process emotions and gain clarity on your feelings." }
+  ],
+  "triggers": [
+    { "id": "stress", "label": "Stress" },
+    { "id": "boredom", "label": "Boredom" },
+    { "id": "loneliness", "label": "Loneliness" },
+    { "id": "anxiety", "label": "Anxiety" },
+    { "id": "social-media", "label": "Social Media" }
+  ],
+  "copingStrategies": [
+    { "id": "exercise", "label": "Exercise" },
+    { "id": "meditation", "label": "Meditation" },
+    { "id": "social-connection", "label": "Social Connection" },
+    { "id": "hobbies", "label": "Hobbies" },
+    { "id": "breathing", "label": "Breathing Exercises" }
+  ],
+  "theme": {
+    "primaryColor": "#667eea",
+    "secondaryColor": "#764ba2",
+    "successColor": "#10b981",
+    "warningColor": "#f59e0b",
+    "dangerColor": "#ef4444"
+  }
+}

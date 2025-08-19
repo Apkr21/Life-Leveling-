@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life System - Solo Leveling IRL</title>
+    
+    <!-- Tailwind CSS for rapid styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for progress visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/system.css">
+    <link rel="stylesheet" href="css/professional.css">
+    <link rel="stylesheet" href="css/desktop.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Mobile optimizations -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LifeSystem">
+    <meta name="msapplication-TileColor" content="#0f0f23">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- Apple touch icons - uncomment after generating icons -->
+    <!-- <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png"> -->
+    <!-- <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png"> -->
+    <!-- <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png"> -->
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+        }
+        .system-font { font-family: 'Orbitron', monospace; }
+        .glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+        .glow-purple { box-shadow: 0 0 20px rgba(147, 51, 234, 0.5); }
+        .glow-gold { box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+        .level-up { animation: levelUp 1s ease-in-out; }
+        @keyframes levelUp {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); filter: brightness(1.5); }
+            100% { transform: scale(1); }
+        }
+        .xp-gain { animation: xpGain 0.8s ease-out; }
+        @keyframes xpGain {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-30px) scale(1.2); opacity: 0; }
+        }
+        .quest-complete { animation: questComplete 0.6s ease-in-out; }
+        @keyframes questComplete {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); filter: brightness(1.3); }
+        }
+        .stat-bar {
+            background: linear-gradient(90deg, #1f2937 0%, #374151 100%);
+            border: 2px solid #4b5563;
+        }
+        .health-bar { background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%); }
+        .mana-bar { background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%); }
+        .energy-bar { background: linear-gradient(90deg, #059669 0%, #10b981 100%); }
+        .xp-bar { background: linear-gradient(90deg, #7c3aed 0%, #8b5cf6 100%); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .system-panel {
+            background: linear-gradient(135deg, rgba(15, 15, 35, 0.95) 0%, rgba(26, 26, 46, 0.95) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .rank-badge {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            border: 2px solid #6b7280;
+        }
+        .rank-e { border-color: #9ca3af; color: #9ca3af; }
+        .rank-d { border-color: #84cc16; color: #84cc16; }
+        .rank-c { border-color: #3b82f6; color: #3b82f6; }
+        .rank-b { border-color: #8b5cf6; color: #8b5cf6; }
+        .rank-a { border-color: #f59e0b; color: #f59e0b; }
+        .rank-s { border-color: #ef4444; color: #ef4444; }
+        .skill-tree-node {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .skill-tree-node:hover {
+            transform: scale(1.1);
+            filter: brightness(1.2);
+        }
+        .skill-unlocked {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-color: #10b981;
+        }
+        .skill-locked {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            border-color: #6b7280;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen desktop-optimized">
+    <!-- Professional Header -->
+    <header class="header shadow-2xl">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-mountain text-xl text-white"></i>
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check text-xs text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">LifeForge</h1>
+                        <p class="text-sm text-gray-400 font-medium">Your Personal Growth System</p>
+                    </div>
+                </div>
+                
+                <!-- Player Info -->
+                <div class="flex items-center space-x-6">
+                    <div class="text-right">
+                        <div class="text-lg font-bold text-white" id="player-name">Champion</div>
+                        <div class="flex items-center space-x-2">
+                            <span class="rank-badge px-3 py-1 text-xs font-bold rounded-full" id="player-rank">BRONZE</span>
+                            <span class="text-sm text-gray-300">Level <span id="player-level" class="font-semibold text-blue-400">1</span></span>
+                        </div>
+                    </div>
+                    <div class="text-right text-sm">
+                        <div id="current-date" class="text-gray-300 font-medium"></div>
+                        <div id="current-time" class="text-blue-400 font-mono text-xs"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Professional Status Bars -->
+            <div class="mt-6 grid grid-cols-4 gap-4">
+                <div class="status-bar">
+                    <div class="flex justify-between items-center text-xs font-medium mb-2">
+                        <span class="text-red-400 flex items-center"><i class="fas fa-heart mr-1"></i>Vitality</span>
+                        <span id="health-value" class="text-white">100/100</span>
+                    </div>
+                    <div class="status-bar-track">
+                        <div id="health-bar" class="status-bar-fill health-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="status-bar">
+                    <div class="flex justify-between items-center text-xs font-medium mb-2">
+                        <span class="text-blue-400 flex items-center"><i class="fas fa-brain mr-1"></i>Focus</span>
+                        <span id="mana-value" class="text-white">100/100</span>
+                    </div>
+                    <div class="status-bar-track">
+                        <div id="mana-bar" class="status-bar-fill mana-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="status-bar">
+                    <div class="flex justify-between items-center text-xs font-medium mb-2">
+                        <span class="text-green-400 flex items-center"><i class="fas fa-bolt mr-1"></i>Energy</span>
+                        <span id="energy-value" class="text-white">100/100</span>
+                    </div>
+                    <div class="status-bar-track">
+                        <div id="energy-bar" class="status-bar-fill energy-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="status-bar">
+                    <div class="flex justify-between items-center text-xs font-medium mb-2">
+                        <span class="text-purple-400 flex items-center"><i class="fas fa-star mr-1"></i>Progress</span>
+                        <span id="xp-value" class="text-white">0/100</span>
+                    </div>
+                    <div class="status-bar-track">
+                        <div id="xp-bar" class="status-bar-fill xp-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container mx-auto px-4 py-6 desktop-container">
+        <!-- Professional Navigation -->
+        <nav class="nav-container mb-8">
+            <div class="nav-tabs desktop-nav-enhanced">
+                <div class="flex flex-wrap gap-1">
+                    <button class="nav-tab active" data-tab="dashboard">
+                        <i class="fas fa-home"></i>Overview
+                    </button>
+                    <button class="nav-tab" data-tab="recovery">
+                        <i class="fas fa-heart"></i>Recovery
+                    </button>
+                    <button class="nav-tab" data-tab="discipline">
+                        <i class="fas fa-shield-alt"></i>Discipline
+                    </button>
+                    <button class="nav-tab" data-tab="training">
+                        <i class="fas fa-dumbbell"></i>Fitness
+                    </button>
+                    <button class="nav-tab" data-tab="nutrition">
+                        <i class="fas fa-apple-alt"></i>Nutrition
+                    </button>
+                    <button class="nav-tab" data-tab="rest">
+                        <i class="fas fa-bed"></i>Recovery
+                    </button>
+                    <button class="nav-tab" data-tab="quests">
+                        <i class="fas fa-target"></i>Goals
+                    </button>
+                    <button class="nav-tab" data-tab="journal">
+                        <i class="fas fa-book"></i>Journal
+                    </button>
+                    <button class="nav-tab" data-tab="stats">
+                        <i class="fas fa-chart-line"></i>Analytics
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Recovery Tab -->
+        <div id="recovery" class="tab-content">
+            <div class="desktop-recovery-layout grid lg:grid-cols-2 gap-6">
+                <!-- Porn Addiction Recovery -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-xl font-bold text-red-400">
+                            <i class="fas fa-ban mr-3"></i>Porn Addiction Recovery
+                        </h2>
+                        <p class="text-sm text-gray-400 mt-1">Your journey to freedom from pornography</p>
+                    </div>
+                    <div class="card-content">
+                        <!-- Porn Recovery Stats -->
+                        <div class="desktop-recovery-stats grid grid-cols-2 gap-4 mb-6">
+                            <div class="metric-card border-l-4 border-green-400">
+                                <div class="metric-value text-green-400" id="porn-clean-days">0</div>
+                                <div class="metric-label">Clean Days</div>
+                                <div class="metric-subtitle">+15 XP per day</div>
+                            </div>
+                            <div class="metric-card border-l-4 border-purple-400">
+                                <div class="metric-value text-purple-400" id="porn-urges-defeated">0</div>
+                                <div class="metric-label">Urges Defeated</div>
+                                <div class="metric-subtitle">+30 XP each</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Porn Recovery Actions -->
+                        <div class="space-y-3">
+                            <button id="porn-urge-victory" class="btn btn-success w-full">
+                                <i class="fas fa-fist-raised mr-2"></i>I Defeated a Porn Urge! (+30 XP)
+                            </button>
+                            <button id="porn-relapse" class="btn btn-danger w-full">
+                                <i class="fas fa-redo mr-2"></i>Reset Porn Counter
+                            </button>
+                        </div>
+                        
+                        <!-- Porn Recovery Progress -->
+                        <div class="mt-6 p-4 bg-gray-800/30 rounded-lg">
+                            <h4 class="font-semibold mb-3 text-gray-300">Recovery Progress</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Longest Streak:</span>
+                                    <span id="porn-longest-streak" class="font-semibold text-green-400">0 days</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Total Relapses:</span>
+                                    <span id="porn-total-relapses" class="font-semibold text-gray-300">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Success Rate:</span>
+                                    <span id="porn-success-rate" class="font-semibold text-blue-400">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alcohol Recovery -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-xl font-bold text-orange-400">
+                            <i class="fas fa-glass-whiskey mr-3"></i>Alcohol Recovery
+                        </h2>
+                        <p class="text-sm text-gray-400 mt-1">Your path to sobriety and health</p>
+                    </div>
+                    <div class="card-content">
+                        <!-- Alcohol Recovery Stats -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="metric-card border-l-4 border-blue-400">
+                                <div class="metric-value text-blue-400" id="alcohol-sober-days">0</div>
+                                <div class="metric-label">Sober Days</div>
+                                <div class="metric-subtitle">+20 XP per day</div>
+                            </div>
+                            <div class="metric-card border-l-4 border-yellow-400">
+                                <div class="metric-value text-yellow-400" id="alcohol-cravings-beaten">0</div>
+                                <div class="metric-label">Cravings Beat</div>
+                                <div class="metric-subtitle">+25 XP each</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Alcohol Recovery Actions -->
+                        <div class="space-y-3">
+                            <button id="alcohol-craving-victory" class="btn btn-warning w-full">
+                                <i class="fas fa-trophy mr-2"></i>I Beat a Craving! (+25 XP)
+                            </button>
+                            <button id="alcohol-relapse" class="btn btn-danger w-full">
+                                <i class="fas fa-redo mr-2"></i>Reset Alcohol Counter
+                            </button>
+                        </div>
+                        
+                        <!-- Alcohol Recovery Progress -->
+                        <div class="mt-6 p-4 bg-gray-800/30 rounded-lg">
+                            <h4 class="font-semibold mb-3 text-gray-300">Sobriety Progress</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Longest Sobriety:</span>
+                                    <span id="alcohol-longest-streak" class="font-semibold text-blue-400">0 days</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Total Relapses:</span>
+                                    <span id="alcohol-total-relapses" class="font-semibold text-gray-300">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Success Rate:</span>
+                                    <span id="alcohol-success-rate" class="font-semibold text-orange-400">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Emergency Toolkit for Addictions -->
+            <div class="card mt-6">
+                <div class="card-header">
+                    <h2 class="text-xl font-bold text-red-400">
+                        <i class="fas fa-life-ring mr-3"></i>Emergency Recovery Toolkit
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">Immediate help when urges or cravings hit</p>
+                </div>
+                <div class="card-content">
+                    <div class="desktop-emergency-toolkit grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <button class="emergency-tool-btn" data-tool="cold-shower">
+                            <i class="fas fa-shower text-2xl mb-2 text-blue-400"></i>
+                            <div class="font-semibold">Cold Shower</div>
+                            <div class="text-xs text-gray-400">Reset nervous system</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="pushups">
+                            <i class="fas fa-dumbbell text-2xl mb-2 text-red-400"></i>
+                            <div class="font-semibold">20 Push-ups</div>
+                            <div class="text-xs text-gray-400">Redirect energy</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="breathing">
+                            <i class="fas fa-lungs text-2xl mb-2 text-green-400"></i>
+                            <div class="font-semibold">Deep Breathing</div>
+                            <div class="text-xs text-gray-400">4-7-8 technique</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="call-sponsor">
+                            <i class="fas fa-phone text-2xl mb-2 text-purple-400"></i>
+                            <div class="font-semibold">Call Support</div>
+                            <div class="text-xs text-gray-400">Reach out for help</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="walk">
+                            <i class="fas fa-walking text-2xl mb-2 text-yellow-400"></i>
+                            <div class="font-semibold">Take a Walk</div>
+                            <div class="text-xs text-gray-400">Change environment</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="meditation">
+                            <i class="fas fa-om text-2xl mb-2 text-indigo-400"></i>
+                            <div class="font-semibold">Meditate</div>
+                            <div class="text-xs text-gray-400">5-minute session</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="journal">
+                            <i class="fas fa-pen text-2xl mb-2 text-pink-400"></i>
+                            <div class="font-semibold">Write Feelings</div>
+                            <div class="text-xs text-gray-400">Express emotions</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="distraction">
+                            <i class="fas fa-gamepad text-2xl mb-2 text-teal-400"></i>
+                            <div class="font-semibold">Healthy Distraction</div>
+                            <div class="text-xs text-gray-400">Engage mind elsewhere</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recovery Milestones -->
+            <div class="card mt-6">
+                <div class="card-header">
+                    <h2 class="text-xl font-bold text-blue-400">
+                        <i class="fas fa-mountain mr-3"></i>Recovery Milestones
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">Celebrate your progress and achievements</p>
+                </div>
+                <div class="card-content">
+                    <div class="desktop-milestones grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+                        <!-- Porn Recovery Milestones -->
+                        <div class="text-center">
+                            <div class="milestone-badge" data-type="porn" data-days="1">
+                                <div class="text-2xl mb-1">🎯</div>
+                                <div class="text-xs font-bold">Day 1</div>
+                                <div class="text-xs text-gray-400">First Step</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="milestone-badge" data-type="porn" data-days="7">
+                                <div class="text-2xl mb-1">🔥</div>
+                                <div class="text-xs font-bold">Week 1</div>
+                                <div class="text-xs text-gray-400">Strong Start</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="milestone-badge" data-type="porn" data-days="30">
+                                <div class="text-2xl mb-1">🏆</div>
+                                <div class="text-xs font-bold">Month 1</div>
+                                <div class="text-xs text-gray-400">Champion</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="milestone-badge" data-type="porn" data-days="90">
+                                <div class="text-2xl mb-1">💎</div>
+                                <div class="text-xs font-bold">90 Days</div>
+                                <div class="text-xs text-gray-400">Diamond</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Alcohol Recovery Milestones -->
+                        <div class="text-center">
+                            <div class="milestone-badge" data-type="alcohol" data-days="1">
+                                <div class="text-2xl mb-1">🌟</div>
+                                <div class="text-xs font-bold">Day 1</div>
+                                <div class="text-xs text-gray-400">Sober Start</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="milestone-badge" data-type="alcohol" data-days="7">
+                                <div class="text-2xl mb-1">💪</div>
+                                <div class="text-xs font-bold">Week 1</div>
+                                <div class="text-xs text-gray-400">Strong</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="milestone-badge" data-type="alcohol" data-days="30">
+                                <div class="text-2xl mb-1">👑</div>
+                                <div class="text-xs font-bold">Month 1</div>
+                                <div class="text-xs text-gray-400">Royalty</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="milestone-badge" data-type="alcohol" data-days="365">
+                                <div class="text-2xl mb-1">🎊</div>
+                                <div class="text-xs font-bold">1 Year</div>
+                                <div class="text-xs text-gray-400">Legend</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="desktop-dashboard grid lg:grid-cols-3 gap-6">
+                <!-- Daily Overview -->
+                <div class="desktop-main-content lg:col-span-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                                <i class="fas fa-chart-line mr-3"></i>Today's Progress
+                            </h2>
+                            <p class="text-sm text-gray-400 mt-1">Your daily transformation metrics</p>
+                        </div>
+                        <div class="card-content">
+                        
+                            <!-- Hero Discipline Section -->
+                            <div class="emergency-panel p-6 mb-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4">
+                                            <i class="fas fa-shield-alt text-xl text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-bold text-white">Discipline Mastery</h3>
+                                            <p class="text-sm text-gray-300">Your path to freedom and strength</p>
+                                        </div>
+                                    </div>
+                                    <button id="emergency-help-btn" class="btn btn-danger">
+                                        <i class="fas fa-life-ring mr-2"></i>EMERGENCY
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <div class="metric-card">
+                                        <div class="metric-value text-green-400" id="clean-streak">0</div>
+                                        <div class="metric-label">Days Strong</div>
+                                        <div class="metric-subtitle">+10 XP daily</div>
+                                    </div>
+                                    <div class="metric-card">
+                                        <div class="metric-value text-purple-400" id="urges-defeated">0</div>
+                                        <div class="metric-label">Victories</div>
+                                        <div class="metric-subtitle">+25 XP each</div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Key Metrics Grid -->
+                            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                                <div class="metric-card border-l-4 border-red-400">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-dumbbell text-white text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="metric-label">Fitness</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="metric-value text-red-400" id="daily-workouts">0</div>
+                                    <div class="metric-subtitle" id="workout-streak-display">0 day streak</div>
+                                </div>
+                                
+                                <div class="metric-card border-l-4 border-yellow-400">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-apple-alt text-white text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="metric-label">Nutrition</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="metric-value text-yellow-400" id="nutrition-score">0/100</div>
+                                    <div class="metric-subtitle" id="meals-today">0 meals today</div>
+                                </div>
+                                
+                                <div class="metric-card border-l-4 border-purple-400">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-bed text-white text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="metric-label">Recovery</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="metric-value text-purple-400" id="sleep-quality">--</div>
+                                    <div class="metric-subtitle" id="sleep-hours">-- hours</div>
+                                </div>
+                            </div>
+                        
+                            <!-- Quick Actions -->
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 text-white">Quick Actions</h3>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <button class="btn btn-ghost activity-card" data-action="quick-workout">
+                                        <i class="fas fa-dumbbell text-lg mb-2"></i>
+                                        <span class="text-sm font-medium">Exercise</span>
+                                    </button>
+                                    <button class="btn btn-ghost activity-card" data-action="urge-victory">
+                                        <i class="fas fa-fist-raised text-lg mb-2"></i>
+                                        <span class="text-sm font-medium">Victory</span>
+                                    </button>
+                                    <button class="btn btn-ghost activity-card" data-action="meditation">
+                                        <i class="fas fa-om text-lg mb-2"></i>
+                                        <span class="text-sm font-medium">Meditate</span>
+                                    </button>
+                                    <button class="btn btn-ghost activity-card" data-action="cold-shower">
+                                        <i class="fas fa-shower text-lg mb-2"></i>
+                                        <span class="text-sm font-medium">Reset</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                
+                <!-- Side Panel -->
+                <div class="space-y-6">
+                    <!-- Active Quests -->
+                    <div class="system-panel rounded-lg p-4 glow-purple">
+                        <h3 class="font-bold system-font mb-3 text-purple-400">
+                            <i class="fas fa-scroll mr-2"></i>Active Quests
+                        </h3>
+                        <div id="active-quests-preview" class="space-y-2">
+                            <!-- Quests will be populated here -->
+                        </div>
+                        <button class="w-full mt-3 text-xs text-purple-400 hover:text-purple-300" onclick="switchTab('quests')">
+                            View All Quests →
+                        </button>
+                    </div>
+                    
+                    <!-- Recent Achievements -->
+                    <div class="system-panel rounded-lg p-4 glow-gold">
+                        <h3 class="font-bold system-font mb-3 text-yellow-400">
+                            <i class="fas fa-trophy mr-2"></i>Recent Achievements
+                        </h3>
+                        <div id="recent-achievements" class="space-y-2">
+                            <!-- Achievements will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <!-- System Messages -->
+                    <div class="system-panel rounded-lg p-4">
+                        <h3 class="font-bold system-font mb-3 text-blue-400">
+                            <i class="fas fa-bell mr-2"></i>System Messages
+                        </h3>
+                        <div id="system-messages" class="space-y-2 text-sm">
+                            <div class="text-green-400">✓ System initialized successfully</div>
+                            <div class="text-blue-400">ℹ Welcome, Hunter. Your journey begins now.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Discipline Tab -->
+        <div id="discipline" class="tab-content">
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- Discipline Overview -->
+                <div class="system-panel rounded-lg p-6 glow-green">
+                    <h2 class="text-xl font-bold system-font mb-4 text-green-400">
+                        <i class="fas fa-shield-alt mr-2"></i>Discipline Master System
+                    </h2>
+                    
+                    <div class="bg-gray-800/30 rounded-lg p-4 mb-6">
+                        <div class="text-center mb-4">
+                            <div class="text-4xl font-bold system-font text-green-400" id="discipline-level">Level 1</div>
+                            <div class="text-sm text-gray-300">Discipline Hunter</div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-300">Clean Days:</span>
+                                <span class="font-bold text-green-400" id="clean-days-display">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-300">Urges Defeated:</span>
+                                <span class="font-bold text-purple-400" id="urges-defeated-display">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-300">Longest Streak:</span>
+                                <span class="font-bold text-blue-400" id="longest-clean-streak">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-300">Success Rate:</span>
+                                <span class="font-bold text-yellow-400" id="discipline-success-rate">100%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button id="defeat-urge-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                            <i class="fas fa-fist-raised mr-2"></i>I Defeated an Urge! (+25 XP)
+                        </button>
+                        <button id="relapse-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                            <i class="fas fa-redo mr-2"></i>Reset Counter (Relapse)
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Tools -->
+                <div class="system-panel rounded-lg p-6 glow">
+                    <h3 class="text-xl font-bold system-font mb-4 text-red-400">
+                        <i class="fas fa-life-ring mr-2"></i>Emergency Arsenal
+                    </h3>
+                    
+                    <div class="space-y-3 mb-6">
+                        <button class="emergency-btn w-full p-3 bg-red-900/30 border border-red-500/30 rounded-lg hover:bg-red-800/50 transition-colors text-left" data-emergency="pushups">
+                            <div class="flex items-center">
+                                <i class="fas fa-dumbbell text-red-400 mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">20 Push-ups NOW</div>
+                                    <div class="text-xs text-gray-400">Redirect energy immediately</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="emergency-btn w-full p-3 bg-blue-900/30 border border-blue-500/30 rounded-lg hover:bg-blue-800/50 transition-colors text-left" data-emergency="cold-shower">
+                            <div class="flex items-center">
+                                <i class="fas fa-shower text-blue-400 mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">Cold Shower Attack</div>
+                                    <div class="text-xs text-gray-400">Reset your nervous system</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="emergency-btn w-full p-3 bg-green-900/30 border border-green-500/30 rounded-lg hover:bg-green-800/50 transition-colors text-left" data-emergency="breathing">
+                            <div class="flex items-center">
+                                <i class="fas fa-lungs text-green-400 mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">4-7-8 Breathing</div>
+                                    <div class="text-xs text-gray-400">Calm the storm within</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="emergency-btn w-full p-3 bg-purple-900/30 border border-purple-500/30 rounded-lg hover:bg-purple-800/50 transition-colors text-left" data-emergency="walk">
+                            <div class="flex items-center">
+                                <i class="fas fa-walking text-purple-400 mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">Immediate Walk</div>
+                                    <div class="text-xs text-gray-400">Change your environment</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="emergency-btn w-full p-3 bg-yellow-900/30 border border-yellow-500/30 rounded-lg hover:bg-yellow-800/50 transition-colors text-left" data-emergency="call">
+                            <div class="flex items-center">
+                                <i class="fas fa-phone text-yellow-400 mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">Call Someone</div>
+                                    <div class="text-xs text-gray-400">Connect with support</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <!-- Motivational Quote -->
+                    <div class="bg-gray-800/50 rounded-lg p-4 border border-blue-500/30">
+                        <h4 class="font-bold text-blue-400 mb-2">
+                            <i class="fas fa-quote-left mr-2"></i>Hunter's Wisdom
+                        </h4>
+                        <blockquote id="discipline-quote" class="text-sm italic text-gray-300 mb-3">
+                            "The strongest people win battles we know nothing about."
+                        </blockquote>
+                        <button id="new-discipline-quote" class="text-xs text-blue-400 hover:text-blue-300">
+                            New Quote →
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Urge Tracker -->
+            <div class="system-panel rounded-lg p-6 mt-6 glow-purple">
+                <h3 class="text-lg font-bold system-font mb-4 text-purple-400">
+                    <i class="fas fa-chart-line mr-2"></i>Battle Log - Recent Victories
+                </h3>
+                <div id="urge-victories" class="space-y-2 max-h-48 overflow-y-auto">
+                    <!-- Urge victories will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Quests Tab -->
+        <div id="quests" class="tab-content">
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- Daily Quests -->
+                <div class="system-panel rounded-lg p-6 glow-green">
+                    <h2 class="text-xl font-bold system-font mb-4 text-green-400">
+                        <i class="fas fa-calendar-check mr-2"></i>Daily Quests
+                    </h2>
+                    <div id="daily-quests" class="space-y-3">
+                        <!-- Daily quests will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Weekly Quests -->
+                <div class="system-panel rounded-lg p-6 glow-purple">
+                    <h2 class="text-xl font-bold system-font mb-4 text-purple-400">
+                        <i class="fas fa-calendar-week mr-2"></i>Weekly Quests
+                    </h2>
+                    <div id="weekly-quests" class="space-y-3">
+                        <!-- Weekly quests will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Special Quests -->
+                <div class="system-panel rounded-lg p-6 glow-gold">
+                    <h2 class="text-xl font-bold system-font mb-4 text-yellow-400">
+                        <i class="fas fa-star mr-2"></i>Special Quests
+                    </h2>
+                    <div id="special-quests" class="space-y-3">
+                        <!-- Special quests will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Tab -->
+        <div id="training" class="tab-content">
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- Quick Workouts -->
+                <div class="system-panel rounded-lg p-6 glow">
+                    <h2 class="text-xl font-bold system-font mb-4 text-red-400">
+                        <i class="fas fa-bolt mr-2"></i>Quick Battles
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        <button class="quick-exercise-btn w-full p-3 bg-gray-800/50 border border-red-500/30 rounded-lg hover:bg-red-900/30 transition-colors text-left" data-exercise="pushups">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dumbbell text-red-400 mr-3"></i>
+                                    <div>
+                                        <div class="font-semibold">Push-ups</div>
+                                        <div class="text-xs text-gray-400">Chest & Arms</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold text-red-400">+15 XP</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-exercise-btn w-full p-3 bg-gray-800/50 border border-red-500/30 rounded-lg hover:bg-red-900/30 transition-colors text-left" data-exercise="squats">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dumbbell text-red-400 mr-3"></i>
+                                    <div>
+                                        <div class="font-semibold">Squats</div>
+                                        <div class="text-xs text-gray-400">Legs & Glutes</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold text-red-400">+15 XP</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-exercise-btn w-full p-3 bg-gray-800/50 border border-red-500/30 rounded-lg hover:bg-red-900/30 transition-colors text-left" data-exercise="abs">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dumbbell text-red-400 mr-3"></i>
+                                    <div>
+                                        <div class="font-semibold">Abs Workout</div>
+                                        <div class="text-xs text-gray-400">Core Strength</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold text-red-400">+20 XP</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-exercise-btn w-full p-3 bg-gray-800/50 border border-blue-500/30 rounded-lg hover:bg-blue-900/30 transition-colors text-left" data-exercise="cardio">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-running text-blue-400 mr-3"></i>
+                                    <div>
+                                        <div class="font-semibold">Cardio Session</div>
+                                        <div class="text-xs text-gray-400">Heart & Endurance</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold text-blue-400">+25 XP</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-exercise-btn w-full p-3 bg-gray-800/50 border border-green-500/30 rounded-lg hover:bg-green-900/30 transition-colors text-left" data-exercise="pullups">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dumbbell text-green-400 mr-3"></i>
+                                    <div>
+                                        <div class="font-semibold">Pull-ups</div>
+                                        <div class="text-xs text-gray-400">Back & Arms</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold text-green-400">+20 XP</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="quick-exercise-btn w-full p-3 bg-gray-800/50 border border-purple-500/30 rounded-lg hover:bg-purple-900/30 transition-colors text-left" data-exercise="plank">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dumbbell text-purple-400 mr-3"></i>
+                                    <div>
+                                        <div class="font-semibold">Plank Hold</div>
+                                        <div class="text-xs text-gray-400">Core Stability</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold text-purple-400">+15 XP</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Detailed Workout Logger -->
+                <div class="system-panel rounded-lg p-6">
+                    <h3 class="text-lg font-bold system-font mb-4 text-gray-300">
+                        <i class="fas fa-clipboard-list mr-2"></i>Detailed Training
+                    </h3>
+                    
+                    <form id="detailed-workout-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Exercise Type</label>
+                            <select id="detailed-exercise-type" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white">
+                                <option value="">Select exercise</option>
+                                <optgroup label="Strength Training">
+                                    <option value="bench-press">Bench Press</option>
+                                    <option value="deadlift">Deadlift</option>
+                                    <option value="squat">Squats</option>
+                                    <option value="overhead-press">Overhead Press</option>
+                                    <option value="rows">Rows</option>
+                                </optgroup>
+                                <optgroup label="Cardio">
+                                    <option value="running">Running</option>
+                                    <option value="cycling">Cycling</option>
+                                    <option value="swimming">Swimming</option>
+                                    <option value="hiit">HIIT</option>
+                                    <option value="jumping-jacks">Jumping Jacks</option>
+                                </optgroup>
+                                <optgroup label="Calisthenics">
+                                    <option value="pushups">Push-ups</option>
+                                    <option value="pullups">Pull-ups</option>
+                                    <option value="dips">Dips</option>
+                                    <option value="burpees">Burpees</option>
+                                    <option value="mountain-climbers">Mountain Climbers</option>
+                                </optgroup>
+                                <optgroup label="Core">
+                                    <option value="crunches">Crunches</option>
+                                    <option value="plank">Plank</option>
+                                    <option value="leg-raises">Leg Raises</option>
+                                    <option value="russian-twists">Russian Twists</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Sets</label>
+                                <input type="number" id="exercise-sets" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white" min="1" max="20">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Reps</label>
+                                <input type="number" id="exercise-reps" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white" min="1" max="100">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Weight (lbs)</label>
+                                <input type="number" id="exercise-weight" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white" min="0" step="5">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Duration (minutes)</label>
+                            <input type="number" id="exercise-duration" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white" min="1" max="180">
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Log Detailed Workout
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Training History -->
+                <div class="system-panel rounded-lg p-6">
+                    <h3 class="text-lg font-bold system-font mb-4 text-gray-300">
+                        <i class="fas fa-history mr-2"></i>Battle History
+                    </h3>
+                    
+                    <!-- Training Stats -->
+                    <div class="bg-gray-800/30 rounded-lg p-3 mb-4">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <div class="text-gray-400">Today's XP</div>
+                                <div class="font-bold text-red-400" id="today-training-xp">0</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400">Exercises Done</div>
+                                <div class="font-bold text-red-400" id="today-exercises">0</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400">Total Workouts</div>
+                                <div class="font-bold text-blue-400" id="total-workouts">0</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400">Streak</div>
+                                <div class="font-bold text-green-400" id="workout-streak-stat">0 days</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="training-history" class="space-y-2 max-h-80 overflow-y-auto">
+                        <!-- Training history will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nutrition Tab -->
+        <div id="nutrition" class="tab-content">
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- Meal Logger -->
+                <div class="system-panel rounded-lg p-6 glow">
+                    <h2 class="text-xl font-bold system-font mb-4 text-yellow-400">
+                        <i class="fas fa-utensils mr-2"></i>Nutrition Log
+                    </h2>
+                    
+                    <form id="meal-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Meal Type</label>
+                            <select id="meal-type" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white">
+                                <option value="">Select meal type</option>
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch">Lunch</option>
+                                <option value="dinner">Dinner</option>
+                                <option value="snack">Snack</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Food Items</label>
+                            <textarea id="meal-items" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white" rows="3" placeholder="List what you ate..."></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Health Rating (1-10)</label>
+                                <input type="range" id="meal-health" min="1" max="10" value="5" class="w-full">
+                                <div class="text-center text-sm text-gray-400" id="health-display">5</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Portion Size</label>
+                                <select id="meal-portion" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white">
+                                    <option value="small">Small</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Log Meal (+XP)
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Nutrition Overview -->
+                <div class="system-panel rounded-lg p-6">
+                    <h3 class="text-lg font-bold system-font mb-4 text-gray-300">Today's Nutrition</h3>
+                    <div id="nutrition-summary" class="space-y-4">
+                        <!-- Nutrition summary will be populated here -->
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="font-semibold mb-3">Recent Meals</h4>
+                        <div id="recent-meals" class="space-y-2 max-h-64 overflow-y-auto">
+                            <!-- Recent meals will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rest Tab -->
+        <div id="rest" class="tab-content">
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- Sleep Logger -->
+                <div class="system-panel rounded-lg p-6 glow">
+                    <h2 class="text-xl font-bold system-font mb-4 text-purple-400">
+                        <i class="fas fa-bed mr-2"></i>Sleep Tracker
+                    </h2>
+                    
+                    <form id="sleep-form" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Bedtime</label>
+                                <input type="time" id="sleep-bedtime" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Wake Time</label>
+                                <input type="time" id="sleep-waketime" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Sleep Quality (1-10)</label>
+                            <input type="range" id="sleep-quality-input" min="1" max="10" value="7" class="w-full">
+                            <div class="text-center text-sm text-gray-400" id="quality-display">7</div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Sleep Notes</label>
+                            <textarea id="sleep-notes" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white" rows="3" placeholder="How did you sleep? Any dreams or disturbances?"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Log Sleep (+XP)
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Sleep History -->
+                <div class="system-panel rounded-lg p-6">
+                    <h3 class="text-lg font-bold system-font mb-4 text-gray-300">Sleep History</h3>
+                    <div id="sleep-history" class="space-y-3 max-h-96 overflow-y-auto">
+                        <!-- Sleep history will be populated here -->
+                    </div>
+                    
+                    <!-- Sleep Stats -->
+                    <div class="mt-6 pt-4 border-t border-gray-700">
+                        <h4 class="font-semibold mb-3">7-Day Average</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <div class="text-gray-400">Average Duration</div>
+                                <div class="font-bold text-purple-400" id="avg-sleep-duration">-- hours</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400">Average Quality</div>
+                                <div class="font-bold text-purple-400" id="avg-sleep-quality">--/10</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Tab -->
+        <div id="skills" class="tab-content">
+            <div class="system-panel rounded-lg p-6 glow">
+                <h2 class="text-xl font-bold system-font mb-6 text-blue-400">
+                    <i class="fas fa-magic mr-2"></i>Skill Tree
+                </h2>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Discipline Tree -->
+                    <div class="skill-tree">
+                        <h3 class="text-lg font-semibold system-font mb-4 text-green-400">
+                            <i class="fas fa-shield-alt mr-2"></i>Discipline
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="skill-tree-node skill-unlocked w-full p-3 rounded-lg border-2 text-center" data-skill="basic-discipline">
+                                <div class="font-bold text-sm">Basic Control</div>
+                                <div class="text-xs text-gray-400">Level 1</div>
+                            </div>
+                            <div class="skill-tree-node skill-locked w-full p-3 rounded-lg border-2 text-center" data-skill="advanced-discipline">
+                                <div class="font-bold text-sm">Iron Will</div>
+                                <div class="text-xs text-gray-400">Level 5</div>
+                            </div>
+                            <div class="skill-tree-node skill-locked w-full p-3 rounded-lg border-2 text-center" data-skill="master-discipline">
+                                <div class="font-bold text-sm">Master Control</div>
+                                <div class="text-xs text-gray-400">Level 10</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fitness Tree -->
+                    <div class="skill-tree">
+                        <h3 class="text-lg font-semibold system-font mb-4 text-red-400">
+                            <i class="fas fa-dumbbell mr-2"></i>Fitness
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="skill-tree-node skill-unlocked w-full p-3 rounded-lg border-2 text-center" data-skill="basic-fitness">
+                                <div class="font-bold text-sm">Basic Training</div>
+                                <div class="text-xs text-gray-400">Level 1</div>
+                            </div>
+                            <div class="skill-tree-node skill-locked w-full p-3 rounded-lg border-2 text-center" data-skill="strength-training">
+                                <div class="font-bold text-sm">Strength Focus</div>
+                                <div class="text-xs text-gray-400">Level 3</div>
+                            </div>
+                            <div class="skill-tree-node skill-locked w-full p-3 rounded-lg border-2 text-center" data-skill="endurance-training">
+                                <div class="font-bold text-sm">Endurance Focus</div>
+                                <div class="text-xs text-gray-400">Level 3</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Nutrition Tree -->
+                    <div class="skill-tree">
+                        <h3 class="text-lg font-semibold system-font mb-4 text-yellow-400">
+                            <i class="fas fa-apple-alt mr-2"></i>Nutrition
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="skill-tree-node skill-unlocked w-full p-3 rounded-lg border-2 text-center" data-skill="basic-nutrition">
+                                <div class="font-bold text-sm">Healthy Eating</div>
+                                <div class="text-xs text-gray-400">Level 1</div>
+                            </div>
+                            <div class="skill-tree-node skill-locked w-full p-3 rounded-lg border-2 text-center" data-skill="meal-planning">
+                                <div class="font-bold text-sm">Meal Planning</div>
+                                <div class="text-xs text-gray-400">Level 4</div>
+                            </div>
+                            <div class="skill-tree-node skill-locked w-full p-3 rounded-lg border-2 text-center" data-skill="advanced-nutrition">
+                                <div class="font-bold text-sm">Macro Mastery</div>
+                                <div class="text-xs text-gray-400">Level 8</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mindfulness Tree -->
+                    <div class="skill-tree">
+                        <h3 class="text-lg font-semibold system-font mb-4 text-purple-400">
+                            <i class="fas fa-om mr-2"></i>Mindfulness
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="skill-tree-node skill-unlocked w-full p-3 rounded-lg border-2 text-center" data-skill="basic-meditation">
+                                <div class="font-bold text-sm">Basic Meditation</div>
+                                <div class="text-xs text-gray-400">Level 1</div>
+                            </div>
+                            <div class="skill-tree-node skill-locked w-full p-3 rounded-lg border-2 text-center" data-skill="breathing-mastery">
+                                <div class="font-bold text-sm">Breath Control</div>
+                                <div class="text-xs text-gray-400">Level 3</div>
+                            </div>
+                            <div class="skill-tree-node skill-locked w-full p-3 rounded-lg border-2 text-center" data-skill="zen-master">
+                                <div class="font-bold text-sm">Zen Master</div>
+                                <div class="text-xs text-gray-400">Level 12</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journal Tab -->
+        <div id="journal" class="tab-content">
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- Journal Entry -->
+                <div class="system-panel rounded-lg p-6 glow">
+                    <h2 class="text-xl font-bold system-font mb-4 text-blue-400">
+                        <i class="fas fa-book mr-2"></i>Daily Reflection
+                    </h2>
+                    
+                    <form id="journal-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">How are you feeling today?</label>
+                            <div class="grid grid-cols-5 gap-2 mb-4">
+                                <button type="button" class="mood-btn p-3 rounded-lg border-2 border-gray-600 hover:border-blue-400 transition-colors text-center" data-mood="1">
+                                    <div class="text-2xl mb-1">😢</div>
+                                    <div class="text-xs">Struggling</div>
+                                </button>
+                                <button type="button" class="mood-btn p-3 rounded-lg border-2 border-gray-600 hover:border-blue-400 transition-colors text-center" data-mood="2">
+                                    <div class="text-2xl mb-1">😔</div>
+                                    <div class="text-xs">Difficult</div>
+                                </button>
+                                <button type="button" class="mood-btn p-3 rounded-lg border-2 border-gray-600 hover:border-blue-400 transition-colors text-center" data-mood="3">
+                                    <div class="text-2xl mb-1">😐</div>
+                                    <div class="text-xs">Neutral</div>
+                                </button>
+                                <button type="button" class="mood-btn p-3 rounded-lg border-2 border-gray-600 hover:border-blue-400 transition-colors text-center" data-mood="4">
+                                    <div class="text-2xl mb-1">🙂</div>
+                                    <div class="text-xs">Good</div>
+                                </button>
+                                <button type="button" class="mood-btn p-3 rounded-lg border-2 border-gray-600 hover:border-blue-400 transition-colors text-center" data-mood="5">
+                                    <div class="text-2xl mb-1">😊</div>
+                                    <div class="text-xs">Great</div>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Today's Reflection</label>
+                            <textarea id="journal-entry" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 text-white" rows="6" placeholder="Write about your day, challenges, victories, and thoughts..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                            <i class="fas fa-save mr-2"></i>Save Entry (+XP)
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Journal History -->
+                <div class="system-panel rounded-lg p-6">
+                    <h3 class="text-lg font-bold system-font mb-4 text-gray-300">Recent Entries</h3>
+                    <div id="journal-history" class="space-y-4 max-h-96 overflow-y-auto">
+                        <!-- Journal entries will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div id="stats" class="tab-content">
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- Character Stats -->
+                <div class="system-panel rounded-lg p-6 glow">
+                    <h2 class="text-xl font-bold system-font mb-6 text-blue-400">
+                        <i class="fas fa-user mr-2"></i>Character Stats
+                    </h2>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-800/50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold system-font text-red-400" id="stat-strength">10</div>
+                            <div class="text-sm text-gray-400">Strength</div>
+                        </div>
+                        <div class="bg-gray-800/50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold system-font text-blue-400" id="stat-intelligence">10</div>
+                            <div class="text-sm text-gray-400">Intelligence</div>
+                        </div>
+                        <div class="bg-gray-800/50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold system-font text-green-400" id="stat-endurance">10</div>
+                            <div class="text-sm text-gray-400">Endurance</div>
+                        </div>
+                        <div class="bg-gray-800/50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold system-font text-purple-400" id="stat-wisdom">10</div>
+                            <div class="text-sm text-gray-400">Wisdom</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Total XP Earned</span>
+                                <span id="total-xp-earned">0</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Current Level</span>
+                                <span id="current-level-display">1</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Days Active</span>
+                                <span id="days-active">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Charts -->
+                <div class="system-panel rounded-lg p-6">
+                    <h3 class="text-lg font-bold system-font mb-4 text-gray-300">Progress Overview</h3>
+                    <div style="height: 300px;">
+                        <canvas id="progress-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- XP Notification -->
+    <div id="xp-notification" class="fixed top-20 right-4 bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex items-center">
+            <i class="fas fa-star mr-2"></i>
+            <span id="xp-text">+10 XP</span>
+        </div>
+    </div>
+
+    <!-- Level Up Notification -->
+    <div id="levelup-notification" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-8 py-4 rounded-lg shadow-2xl text-center z-50 hidden">
+        <div class="text-2xl font-bold system-font mb-2">LEVEL UP!</div>
+        <div class="text-lg">You are now level <span id="new-level">2</span></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/system.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('sw.js');
+                    console.log('✅ Service Worker registered:', registration.scope);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version available
+                                if (confirm('New version available! Reload to update?')) {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.error('❌ Service Worker registration failed:', error);
+                }
+            });
+        }
+
+        // PWA install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show custom install button/banner
+            showInstallPrompt();
+        });
+
+        // Show install prompt
+        function showInstallPrompt() {
+            const installBanner = document.createElement('div');
+            installBanner.id = 'install-banner';
+            installBanner.className = 'fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 z-50 transform -translate-y-full transition-transform duration-300';
+            installBanner.innerHTML = `
+                <div class="flex items-center justify-between max-w-md mx-auto">
+                    <div class="flex items-center">
+                        <i class="fas fa-mobile-alt mr-2"></i>
+                        <span class="text-sm font-medium">Install Life System as an app!</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="install-btn" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-xs font-bold">
+                            Install
+                        </button>
+                        <button id="install-dismiss" class="text-white/80 hover:text-white">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(installBanner);
+            
+            // Animate in
+            setTimeout(() => {
+                installBanner.classList.remove('-translate-y-full');
+            }, 100);
+            
+            // Install button
+            document.getElementById('install-btn').addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const result = await deferredPrompt.userChoice;
+                    console.log('Install result:', result);
+                    deferredPrompt = null;
+                    installBanner.remove();
+                }
+            });
+            
+            // Dismiss button
+            document.getElementById('install-dismiss').addEventListener('click', () => {
+                installBanner.remove();
+            });
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (document.getElementById('install-banner')) {
+                    installBanner.remove();
+                }
+            }, 10000);
+        }
+
+        // Track app installation
+        window.addEventListener('appinstalled', (e) => {
+            console.log('✅ App installed successfully!');
+            // Track this event for analytics
+        });
+
+        // Handle offline/online status
+        window.addEventListener('online', () => {
+            console.log('🌐 Back online');
+            const banner = showNetworkStatus('Connected', 'bg-green-600');
+            setTimeout(() => banner.remove(), 3000);
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('📱 Offline mode');
+            showNetworkStatus('Offline - App still works!', 'bg-yellow-600');
+        });
+
+        function showNetworkStatus(message, bgClass) {
+            const banner = document.createElement('div');
+            banner.className = `fixed top-0 left-0 right-0 ${bgClass} text-white p-2 z-40 text-center text-sm font-medium`;
+            banner.textContent = message;
+            document.body.appendChild(banner);
+            return banner;
+        }
+
+        // Mobile-specific optimizations
+        if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            // Prevent zoom on input focus
+            document.addEventListener('touchstart', () => {}, { passive: true });
+            
+            // Prevent pull-to-refresh on mobile
+            document.body.style.overscrollBehavior = 'contain';
+            
+            // Add mobile-specific CSS
+            const mobileCSS = document.createElement('style');
+            mobileCSS.textContent = `
+                @media (max-width: 768px) {
+                    /* Larger touch targets */
+                    .quick-action-btn, .tab-btn, .emergency-btn, .quick-exercise-btn {
+                        min-height: 48px;
+                        min-width: 48px;
+                    }
+                    
+                    /* Better mobile spacing */
+                    .system-panel {
+                        margin: 0.5rem;
+                        padding: 1rem;
+                    }
+                    
+                    /* Mobile-friendly forms */
+                    input, select, textarea {
+                        font-size: 16px; /* Prevents zoom on iOS */
+                    }
+                    
+                    /* Swipe indicators */
+                    .tab-content {
+                        position: relative;
+                    }
+                    
+                    /* Mobile keyboard handling */
+                    .keyboard-adjust {
+                        padding-bottom: env(keyboard-inset-height, 0px);
+                    }
+                }
+                
+                /* Handle notch on iPhone X+ */
+                @supports (padding: max(0px)) {
+                    .safe-area-top {
+                        padding-top: max(1rem, env(safe-area-inset-top));
+                    }
+                    
+                    .safe-area-bottom {
+                        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+                    }
+                }
+            `;
+            document.head.appendChild(mobileCSS);
+        }
+    </script>
+</body>
+</html>

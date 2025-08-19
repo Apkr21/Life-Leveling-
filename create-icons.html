@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life System - Icon Generator</title>
+    <style>
+        body {
+            background: #0f0f23;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .icon-preview {
+            display: inline-block;
+            margin: 1rem;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 1rem;
+        }
+        
+        canvas {
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            border-radius: 0.5rem;
+            margin: 0.5rem;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Life System - PWA Icon Generator</h1>
+    <p>Generate app icons for your Life System PWA</p>
+    
+    <div id="icons-container">
+        <!-- Icons will be generated here -->
+    </div>
+    
+    <button onclick="generateAllIcons()">Generate All Icons</button>
+    <button onclick="downloadAllIcons()">Download All Icons</button>
+    
+    <script>
+        const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const generatedIcons = {};
+        
+        function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#0f0f23');
+            gradient.addColorStop(0.5, '#1a1a2e');
+            gradient.addColorStop(1, '#16213e');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Glowing border
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = size * 0.02;
+            ctx.strokeRect(size * 0.01, size * 0.01, size * 0.98, size * 0.98);
+            
+            // Inner glow
+            const innerGradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+            innerGradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+            innerGradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+            
+            ctx.fillStyle = innerGradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Main logo - Shield with sword
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const logoSize = size * 0.6;
+            
+            // Shield shape
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - logoSize/3);
+            ctx.quadraticCurveTo(centerX - logoSize/3, centerY - logoSize/3, centerX - logoSize/3, centerY);
+            ctx.quadraticCurveTo(centerX - logoSize/3, centerY + logoSize/4, centerX, centerY + logoSize/2);
+            ctx.quadraticCurveTo(centerX + logoSize/3, centerY + logoSize/4, centerX + logoSize/3, centerY);
+            ctx.quadraticCurveTo(centerX + logoSize/3, centerY - logoSize/3, centerX, centerY - logoSize/3);
+            ctx.fill();
+            
+            // Shield outline
+            ctx.strokeStyle = '#059669';
+            ctx.lineWidth = size * 0.01;
+            ctx.stroke();
+            
+            // Sword in center
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillRect(centerX - size * 0.015, centerY - logoSize/4, size * 0.03, logoSize/2);
+            
+            // Sword hilt
+            ctx.fillRect(centerX - size * 0.04, centerY - logoSize/4, size * 0.08, size * 0.02);
+            
+            // Sword point
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - logoSize/3);
+            ctx.lineTo(centerX - size * 0.015, centerY - logoSize/4);
+            ctx.lineTo(centerX + size * 0.015, centerY - logoSize/4);
+            ctx.fill();
+            
+            // Level indicator
+            ctx.fillStyle = '#8b5cf6';
+            ctx.font = `bold ${size * 0.12}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('LVL', centerX, centerY + logoSize/3);
+            
+            // Glow effect around logo
+            ctx.shadowColor = '#3b82f6';
+            ctx.shadowBlur = size * 0.05;
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = size * 0.005;
+            ctx.stroke();
+            
+            return canvas;
+        }
+        
+        function generateAllIcons() {
+            const container = document.getElementById('icons-container');
+            container.innerHTML = '';
+            
+            iconSizes.forEach(size => {
+                const canvas = generateIcon(size);
+                generatedIcons[size] = canvas;
+                
+                const preview = document.createElement('div');
+                preview.className = 'icon-preview';
+                
+                const title = document.createElement('h3');
+                title.textContent = `${size}x${size}`;
+                title.style.marginTop = '0';
+                
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = 'Download';
+                downloadBtn.onclick = () => downloadIcon(canvas, size);
+                
+                preview.appendChild(title);
+                preview.appendChild(canvas);
+                preview.appendChild(downloadBtn);
+                
+                container.appendChild(preview);
+            });
+        }
+        
+        function downloadIcon(canvas, size) {
+            const link = document.createElement('a');
+            link.download = `icon-${size}x${size}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function downloadAllIcons() {
+            Object.entries(generatedIcons).forEach(([size, canvas]) => {
+                setTimeout(() => downloadIcon(canvas, size), 100 * Object.keys(generatedIcons).indexOf(size));
+            });
+        }
+        
+        // Generate icons on load
+        generateAllIcons();
+    </script>
+</body>
+</html>

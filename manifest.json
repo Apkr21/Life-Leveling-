@@ -1,0 +1,24 @@
+{
+  "name": "Life System - Solo Leveling IRL",
+  "short_name": "LifeSystem",
+  "description": "Transform your life into an epic RPG adventure. Level up through discipline, fitness, and personal growth.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f0f23",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait",
+  "categories": ["health", "fitness", "lifestyle", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [],
+  "screenshots": [],
+  "shortcuts": [],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "scope": "./",
+  "id": "life-system-solo-leveling",
+  "protocol_handlers": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
