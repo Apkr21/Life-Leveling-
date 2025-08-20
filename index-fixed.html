@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life System - Solo Leveling IRL</title>
+    
+    <!-- Tailwind CSS for rapid styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for progress visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS - TRY to load external files -->
+    <link rel="stylesheet" href="css/system.css">
+    <link rel="stylesheet" href="css/professional.css">
+    <link rel="stylesheet" href="css/desktop.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Mobile optimizations -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LifeSystem">
+    <meta name="msapplication-TileColor" content="#0f0f23">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- CRITICAL CSS - Embedded to ensure it always works -->
+    <style>
+        /* RESET AND BASE STYLES */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: white;
+            line-height: 1.6;
+        }
+        
+        /* CRITICAL: TAB SYSTEM */
+        .tab-content { 
+            display: none !important; 
+        }
+        .tab-content.active { 
+            display: block !important; 
+        }
+        
+        /* NAVIGATION */
+        .nav-container {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tab {
+            background: #1e293b;
+            border: 2px solid #334155;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            min-width: 120px;
+            justify-content: center;
+        }
+        
+        .nav-tab:hover {
+            border-color: #3b82f6;
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .nav-tab.active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-color: #60a5fa;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+        }
+        
+        /* CONTAINER */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        /* CARDS */
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1.5rem 2rem 0 2rem;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-content {
+            padding: 0 2rem 2rem 2rem;
+        }
+        
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* BUTTONS */
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+        
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            border-color: #059669;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            border-color: #dc2626;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-warning {
+            background: #f59e0b;
+            border-color: #d97706;
+        }
+        
+        .btn-warning:hover {
+            background: #d97706;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* GRID LAYOUTS */
+        .grid {
+            display: grid;
+        }
+        
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .lg\\:grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .lg\\:grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        
+        /* METRICS */
+        .metric-card {
+            background: rgba(51, 65, 85, 0.3);
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-subtitle {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        
+        /* EMERGENCY TOOLKIT */
+        .emergency-tool-btn {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid #475569;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .emergency-tool-btn:hover {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        /* MILESTONE BADGES */
+        .milestone-badge {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .milestone-badge:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        .milestone-badge.achieved {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-color: #60a5fa;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+        }
+        
+        .milestone-badge.locked {
+            opacity: 0.4;
+            border-color: #64748b;
+        }
+        
+        /* UTILITY CLASSES */
+        .w-full { width: 100%; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mr-2 { margin-right: 0.5rem; }
+        .mr-3 { margin-right: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        
+        .text-center { text-align: center; }
+        .text-white { color: white; }
+        .text-gray-300 { color: #d1d5db; }
+        .text-gray-400 { color: #9ca3af; }
+        .text-red-400 { color: #f87171; }
+        .text-green-400 { color: #4ade80; }
+        .text-blue-400 { color: #60a5fa; }
+        .text-purple-400 { color: #c084fc; }
+        .text-orange-400 { color: #fb923c; }
+        .text-yellow-400 { color: #facc15; }
+        
+        .border-l-4 { border-left-width: 4px; }
+        .border-green-400 { border-color: #4ade80; }
+        .border-purple-400 { border-color: #c084fc; }
+        .border-blue-400 { border-color: #60a5fa; }
+        .border-yellow-400 { border-color: #facc15; }
+        
+        .space-y-3 > * + * { margin-top: 0.75rem; }
+        
+        .bg-gray-800\\/30 { background-color: rgba(31, 41, 55, 0.3); }
+        .rounded-lg { border-radius: 0.5rem; }
+        
+        .flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .nav-tab {
+                min-width: 100px;
+                padding: 0.5rem 1rem;
+                font-size: 0.75rem;
+            }
+            
+            .container {
+                padding: 0 0.5rem;
+            }
+            
+            .card-header, .card-content {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .lg\\:grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .lg\\:grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* LOADING STATE */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        /* ENSURE PROPER SPACING */
+        .desktop-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .desktop-container {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen desktop-optimized">
+
+    <!-- Loading Indicator -->
+    <div id="loading" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 15, 35, 0.95); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div style="text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🎮</div>
+            <div style="font-size: 1.25rem; font-weight: 600;">Loading Life System...</div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-6 desktop-container">
+        <!-- Professional Navigation -->
+        <nav class="nav-container mb-8">
+            <div class="nav-tabs desktop-nav-enhanced">
+                <div class="flex flex-wrap gap-1">
+                    <button class="nav-tab active" data-tab="dashboard">
+                        <i class="fas fa-home"></i>Overview
+                    </button>
+                    <button class="nav-tab" data-tab="recovery">
+                        <i class="fas fa-heart"></i>Recovery
+                    </button>
+                    <button class="nav-tab" data-tab="discipline">
+                        <i class="fas fa-shield-alt"></i>Discipline
+                    </button>
+                    <button class="nav-tab" data-tab="training">
+                        <i class="fas fa-dumbbell"></i>Fitness
+                    </button>
+                    <button class="nav-tab" data-tab="nutrition">
+                        <i class="fas fa-apple-alt"></i>Nutrition
+                    </button>
+                    <button class="nav-tab" data-tab="rest">
+                        <i class="fas fa-bed"></i>Recovery
+                    </button>
+                    <button class="nav-tab" data-tab="quests">
+                        <i class="fas fa-target"></i>Goals
+                    </button>
+                    <button class="nav-tab" data-tab="journal">
+                        <i class="fas fa-book"></i>Journal
+                    </button>
+                    <button class="nav-tab" data-tab="stats">
+                        <i class="fas fa-chart-bar"></i>Stats
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Recovery Tab -->
+        <div id="recovery" class="tab-content">
+            <div class="desktop-recovery-layout grid lg:grid-cols-2 gap-6">
+                <!-- Porn Addiction Recovery -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-xl font-bold text-red-400">
+                            <i class="fas fa-ban mr-3"></i>Porn Addiction Recovery
+                        </h2>
+                        <p class="text-sm text-gray-400 mt-1">Your journey to freedom from pornography</p>
+                    </div>
+                    <div class="card-content">
+                        <!-- Porn Recovery Stats -->
+                        <div class="desktop-recovery-stats grid grid-cols-2 gap-4 mb-6">
+                            <div class="metric-card border-l-4 border-green-400">
+                                <div class="metric-value text-green-400" id="porn-clean-days">0</div>
+                                <div class="metric-label">Clean Days</div>
+                                <div class="metric-subtitle">+15 XP per day</div>
+                            </div>
+                            <div class="metric-card border-l-4 border-purple-400">
+                                <div class="metric-value text-purple-400" id="porn-urges-defeated">0</div>
+                                <div class="metric-label">Urges Defeated</div>
+                                <div class="metric-subtitle">+30 XP each</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Porn Recovery Actions -->
+                        <div class="space-y-3">
+                            <button id="porn-urge-victory" class="btn btn-success w-full">
+                                <i class="fas fa-fist-raised mr-2"></i>I Defeated a Porn Urge! (+30 XP)
+                            </button>
+                            <button id="porn-relapse" class="btn btn-danger w-full">
+                                <i class="fas fa-redo mr-2"></i>Reset Porn Counter
+                            </button>
+                        </div>
+                        
+                        <!-- Porn Recovery Progress -->
+                        <div class="mt-6 p-4 bg-gray-800/30 rounded-lg">
+                            <h4 class="font-semibold mb-3 text-gray-300">Recovery Progress</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Longest Streak:</span>
+                                    <span id="porn-longest-streak" class="font-semibold text-green-400">0 days</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Total Relapses:</span>
+                                    <span id="porn-total-relapses" class="font-semibold text-gray-300">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Success Rate:</span>
+                                    <span id="porn-success-rate" class="font-semibold text-blue-400">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alcohol Recovery -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-xl font-bold text-orange-400">
+                            <i class="fas fa-glass-whiskey mr-3"></i>Alcohol Recovery
+                        </h2>
+                        <p class="text-sm text-gray-400 mt-1">Your path to sobriety and health</p>
+                    </div>
+                    <div class="card-content">
+                        <!-- Alcohol Recovery Stats -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="metric-card border-l-4 border-blue-400">
+                                <div class="metric-value text-blue-400" id="alcohol-sober-days">0</div>
+                                <div class="metric-label">Sober Days</div>
+                                <div class="metric-subtitle">+20 XP per day</div>
+                            </div>
+                            <div class="metric-card border-l-4 border-yellow-400">
+                                <div class="metric-value text-yellow-400" id="alcohol-cravings-beaten">0</div>
+                                <div class="metric-label">Cravings Beat</div>
+                                <div class="metric-subtitle">+25 XP each</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Alcohol Recovery Actions -->
+                        <div class="space-y-3">
+                            <button id="alcohol-craving-victory" class="btn btn-warning w-full">
+                                <i class="fas fa-trophy mr-2"></i>I Beat a Craving! (+25 XP)
+                            </button>
+                            <button id="alcohol-relapse" class="btn btn-danger w-full">
+                                <i class="fas fa-redo mr-2"></i>Reset Alcohol Counter
+                            </button>
+                        </div>
+                        
+                        <!-- Alcohol Recovery Progress -->
+                        <div class="mt-6 p-4 bg-gray-800/30 rounded-lg">
+                            <h4 class="font-semibold mb-3 text-gray-300">Sobriety Progress</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Longest Sobriety:</span>
+                                    <span id="alcohol-longest-streak" class="font-semibold text-blue-400">0 days</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Total Relapses:</span>
+                                    <span id="alcohol-total-relapses" class="font-semibold text-gray-300">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Success Rate:</span>
+                                    <span id="alcohol-success-rate" class="font-semibold text-orange-400">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Emergency Toolkit for Addictions -->
+            <div class="card mt-6">
+                <div class="card-header">
+                    <h2 class="text-xl font-bold text-red-400">
+                        <i class="fas fa-life-ring mr-3"></i>Emergency Recovery Toolkit
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">Immediate help when urges or cravings hit</p>
+                </div>
+                <div class="card-content">
+                    <div class="desktop-emergency-toolkit grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <button class="emergency-tool-btn" data-tool="cold-shower">
+                            <i class="fas fa-shower text-2xl mb-2 text-blue-400"></i>
+                            <div class="font-semibold">Cold Shower</div>
+                            <div class="text-xs text-gray-400">Reset nervous system</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="pushups">
+                            <i class="fas fa-dumbbell text-2xl mb-2 text-red-400"></i>
+                            <div class="font-semibold">20 Push-ups</div>
+                            <div class="text-xs text-gray-400">Redirect energy</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="breathing">
+                            <i class="fas fa-lungs text-2xl mb-2 text-green-400"></i>
+                            <div class="font-semibold">Deep Breathing</div>
+                            <div class="text-xs text-gray-400">4-7-8 technique</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="call-sponsor">
+                            <i class="fas fa-phone text-2xl mb-2 text-purple-400"></i>
+                            <div class="font-semibold">Call Support</div>
+                            <div class="text-xs text-gray-400">Reach out for help</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="walk">
+                            <i class="fas fa-walking text-2xl mb-2 text-yellow-400"></i>
+                            <div class="font-semibold">Take a Walk</div>
+                            <div class="text-xs text-gray-400">Change environment</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="meditation">
+                            <i class="fas fa-om text-2xl mb-2 text-indigo-400"></i>
+                            <div class="font-semibold">Meditate</div>
+                            <div class="text-xs text-gray-400">5-minute session</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="journal">
+                            <i class="fas fa-pen text-2xl mb-2 text-pink-400"></i>
+                            <div class="font-semibold">Write Feelings</div>
+                            <div class="text-xs text-gray-400">Express emotions</div>
+                        </button>
+                        
+                        <button class="emergency-tool-btn" data-tool="distraction">
+                            <i class="fas fa-gamepad text-2xl mb-2 text-teal-400"></i>
+                            <div class="font-semibold">Healthy Distraction</div>
+                            <div class="text-xs text-gray-400">Engage mind elsewhere</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="desktop-dashboard grid lg:grid-cols-3 gap-6">
+                <!-- Daily Overview -->
+                <div class="desktop-main-content lg:col-span-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="text-2xl font-bold text-blue-400">
+                                <i class="fas fa-chart-line mr-3"></i>Today's Progress
+                            </h2>
+                            <p class="text-sm text-gray-400 mt-1">Your daily transformation metrics</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                <div class="metric-card border-l-4 border-blue-400">
+                                    <div class="metric-value text-blue-400" id="player-level">1</div>
+                                    <div class="metric-label">Level</div>
+                                </div>
+                                <div class="metric-card border-l-4 border-purple-400">
+                                    <div class="metric-value text-purple-400" id="total-xp">0</div>
+                                    <div class="metric-label">Total XP</div>
+                                </div>
+                                <div class="metric-card border-l-4 border-green-400">
+                                    <div class="metric-value text-green-400" id="clean-streak">0</div>
+                                    <div class="metric-label">Clean Days</div>
+                                </div>
+                                <div class="metric-card border-l-4 border-yellow-400">
+                                    <div class="metric-value text-yellow-400" id="rank-display">Bronze</div>
+                                    <div class="metric-label">Rank</div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <button class="btn btn-success" onclick="if(window.lifeSystem) window.lifeSystem.defeatPornUrge()">
+                                    🏆 Victory Over Porn Urge
+                                </button>
+                                <button class="btn btn-warning" onclick="if(window.lifeSystem) window.lifeSystem.beatAlcoholCraving()">
+                                    💪 Beat Alcohol Craving
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="desktop-sidebar">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="font-bold text-green-400">Quick Stats</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span>Porn Recovery:</span>
+                                    <span id="porn-quick-days" class="font-semibold text-green-400">0 days</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Alcohol Recovery:</span>
+                                    <span id="alcohol-quick-days" class="font-semibold text-blue-400">0 days</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Total Victories:</span>
+                                    <span id="total-victories" class="font-semibold text-purple-400">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other tabs with minimal content -->
+        <div id="discipline" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-xl font-bold text-purple-400">Discipline Master</h2>
+                </div>
+                <div class="card-content">
+                    <p>Legacy discipline system. Use the Recovery tab for the enhanced addiction recovery features.</p>
+                    <button class="btn btn-success mt-4" onclick="switchToRecovery()">Go to Recovery Tab</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="training" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-xl font-bold text-red-400">Fitness Training</h2>
+                </div>
+                <div class="card-content">
+                    <p>Fitness tracking coming soon. Focus on recovery first!</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="nutrition" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-xl font-bold text-green-400">Nutrition</h2>
+                </div>
+                <div class="card-content">
+                    <p>Nutrition tracking coming soon.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="rest" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-xl font-bold text-blue-400">Rest & Recovery</h2>
+                </div>
+                <div class="card-content">
+                    <p>Sleep tracking coming soon.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="quests" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-xl font-bold text-yellow-400">Goals & Quests</h2>
+                </div>
+                <div class="card-content">
+                    <p>Quest system coming soon.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="journal" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-xl font-bold text-pink-400">Personal Journal</h2>
+                </div>
+                <div class="card-content">
+                    <p>Journaling features coming soon.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="stats" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-xl font-bold text-indigo-400">Statistics</h2>
+                </div>
+                <div class="card-content">
+                    <p>Detailed statistics coming soon.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Simplified JavaScript -->
+    <script>
+        // Hide loading screen when page is ready
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 1000);
+        });
+
+        // Simple tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            const targetTab = document.getElementById(tabName);
+            const targetBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            
+            if (targetTab && targetBtn) {
+                targetTab.classList.add('active');
+                targetBtn.classList.add('active');
+            }
+        }
+
+        // Tab navigation event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+        });
+
+        // Quick recovery tab switcher
+        function switchToRecovery() {
+            switchTab('recovery');
+        }
+
+        // Simple data management
+        let recoveryData = {
+            pornRecovery: {
+                cleanDays: 0,
+                urgesDefeated: 0,
+                startDate: Date.now(),
+                longestStreak: 0,
+                totalRelapses: 0
+            },
+            alcoholRecovery: {
+                soberDays: 0,
+                cravingsBeaten: 0,
+                startDate: Date.now(),
+                longestStreak: 0,
+                totalRelapses: 0
+            },
+            level: 1,
+            xp: 0,
+            totalXP: 0
+        };
+
+        // Load data
+        function loadRecoveryData() {
+            try {
+                const saved = localStorage.getItem('lifeSystemData');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    recoveryData = { ...recoveryData, ...parsed };
+                }
+            } catch (error) {
+                console.log('Error loading data:', error);
+            }
+            updateRecoveryUI();
+        }
+
+        // Save data
+        function saveRecoveryData() {
+            try {
+                localStorage.setItem('lifeSystemData', JSON.stringify(recoveryData));
+            } catch (error) {
+                console.log('Error saving data:', error);
+            }
+        }
+
+        // Update UI
+        function updateRecoveryUI() {
+            const now = Date.now();
+            const msPerDay = 24 * 60 * 60 * 1000;
+            
+            // Calculate days
+            const pornDays = Math.floor((now - recoveryData.pornRecovery.startDate) / msPerDay);
+            const alcoholDays = Math.floor((now - recoveryData.alcoholRecovery.startDate) / msPerDay);
+            
+            // Update displays
+            const pornCleanDays = document.getElementById('porn-clean-days');
+            if (pornCleanDays) pornCleanDays.textContent = pornDays;
+            
+            const pornUrgesDefeated = document.getElementById('porn-urges-defeated');
+            if (pornUrgesDefeated) pornUrgesDefeated.textContent = recoveryData.pornRecovery.urgesDefeated;
+            
+            const alcoholSoberDays = document.getElementById('alcohol-sober-days');
+            if (alcoholSoberDays) alcoholSoberDays.textContent = alcoholDays;
+            
+            const alcoholCravingsBeaten = document.getElementById('alcohol-cravings-beaten');
+            if (alcoholCravingsBeaten) alcoholCravingsBeaten.textContent = recoveryData.alcoholRecovery.cravingsBeaten;
+            
+            // Update other displays
+            const level = document.getElementById('player-level');
+            if (level) level.textContent = recoveryData.level;
+            
+            const xp = document.getElementById('total-xp');
+            if (xp) xp.textContent = recoveryData.totalXP;
+            
+            const cleanStreak = document.getElementById('clean-streak');
+            if (cleanStreak) cleanStreak.textContent = Math.max(pornDays, alcoholDays);
+            
+            // Update quick stats in sidebar
+            const pornQuickDays = document.getElementById('porn-quick-days');
+            if (pornQuickDays) pornQuickDays.textContent = `${pornDays} days`;
+            
+            const alcoholQuickDays = document.getElementById('alcohol-quick-days');
+            if (alcoholQuickDays) alcoholQuickDays.textContent = `${alcoholDays} days`;
+            
+            const totalVictories = document.getElementById('total-victories');
+            if (totalVictories) {
+                const total = recoveryData.pornRecovery.urgesDefeated + recoveryData.alcoholRecovery.cravingsBeaten;
+                totalVictories.textContent = total;
+            }
+        }
+
+        // Recovery functions
+        function defeatPornUrge() {
+            recoveryData.pornRecovery.urgesDefeated++;
+            recoveryData.totalXP += 30;
+            recoveryData.level = Math.floor(recoveryData.totalXP / 100) + 1;
+            
+            alert('🏆 Porn urge defeated! +30 XP gained!');
+            updateRecoveryUI();
+            saveRecoveryData();
+        }
+
+        function resetPornRecovery() {
+            if (confirm('Reset porn recovery counter? This is part of the journey.')) {
+                recoveryData.pornRecovery.totalRelapses++;
+                recoveryData.pornRecovery.startDate = Date.now();
+                alert('💪 Porn recovery restarted. You\'re still a champion!');
+                updateRecoveryUI();
+                saveRecoveryData();
+            }
+        }
+
+        function beatAlcoholCraving() {
+            recoveryData.alcoholRecovery.cravingsBeaten++;
+            recoveryData.totalXP += 25;
+            recoveryData.level = Math.floor(recoveryData.totalXP / 100) + 1;
+            
+            alert('🏆 Alcohol craving beaten! +25 XP gained!');
+            updateRecoveryUI();
+            saveRecoveryData();
+        }
+
+        function resetAlcoholRecovery() {
+            if (confirm('Reset alcohol recovery counter? Recovery is not linear.')) {
+                recoveryData.alcoholRecovery.totalRelapses++;
+                recoveryData.alcoholRecovery.startDate = Date.now();
+                alert('💪 Alcohol recovery restarted. You\'re resilient!');
+                updateRecoveryUI();
+                saveRecoveryData();
+            }
+        }
+
+        function useEmergencyTool(tool) {
+            const messages = {
+                'cold-shower': '🚿 Cold shower activated! System reset!',
+                'pushups': '💪 20 push-ups completed! Energy redirected!',
+                'breathing': '🫁 Deep breathing done! Center found!',
+                'call-sponsor': '📞 Remember: reaching out shows strength!',
+                'walk': '🚶 Walk planned! Environment change helps!',
+                'meditation': '🧘 Meditation time! Find your peace!',
+                'journal': '📝 Write it out! Expression helps healing!',
+                'distraction': '🎯 Healthy distraction activated!'
+            };
+            
+            recoveryData.totalXP += 15;
+            recoveryData.level = Math.floor(recoveryData.totalXP / 100) + 1;
+            
+            alert(messages[tool] || 'Emergency tool used! +15 XP');
+            updateRecoveryUI();
+            saveRecoveryData();
+        }
+
+        // Button event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const pornUrgeBtn = document.getElementById('porn-urge-victory');
+            if (pornUrgeBtn) pornUrgeBtn.addEventListener('click', defeatPornUrge);
+            
+            const pornRelapseBtn = document.getElementById('porn-relapse');
+            if (pornRelapseBtn) pornRelapseBtn.addEventListener('click', resetPornRecovery);
+            
+            const alcoholCravingBtn = document.getElementById('alcohol-craving-victory');
+            if (alcoholCravingBtn) alcoholCravingBtn.addEventListener('click', beatAlcoholCraving);
+            
+            const alcoholRelapseBtn = document.getElementById('alcohol-relapse');
+            if (alcoholRelapseBtn) alcoholRelapseBtn.addEventListener('click', resetAlcoholRecovery);
+            
+            // Emergency tool buttons
+            document.querySelectorAll('.emergency-tool-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tool = this.getAttribute('data-tool');
+                    useEmergeryTool(tool);
+                });
+            });
+            
+            // Load data on startup
+            loadRecoveryData();
+            
+            console.log('✅ Life System loaded successfully!');
+        });
+
+        // Try to load the full system if available
+        if (typeof LifeSystem !== 'undefined') {
+            try {
+                window.lifeSystem = new LifeSystem();
+                console.log('✅ Full Life System loaded');
+            } catch (error) {
+                console.log('⚠️ Full system not available, using simplified version');
+            }
+        }
+    </script>
+
+    <!-- Try to load full system.js if available -->
+    <script src="js/system.js" onerror="console.log('Full system.js not available, using embedded version')"></script>
+
+</body>
+</html>
